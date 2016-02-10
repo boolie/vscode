@@ -54,7 +54,8 @@ export class BreakpointWidget extends ZoneWidget {
 
 		const inputBoxContainer = dom.append(container, $('.inputBoxContainer'));
 		this.inputBox = new InputBox(inputBoxContainer, this.contextViewService, {
-			placeholder: nls.localize('breakpointWidgetPlaceholder', "Breakpoint on line {0} will only stop if this condition is true. 'Enter' to accept, 'esc' to cancel.", this.lineNumber)
+			placeholder: nls.localize('breakpointWidgetPlaceholder', "Breakpoint on line {0} will only stop if this condition is true. 'Enter' to accept, 'esc' to cancel.", this.lineNumber),
+			ariaLabel: nls.localize('breakpointWidgetAriaLabel', "Type the breakpoint condition for line {0}. The program will only stop here if this condition is true. Press Enter to accept or Escape to cancel.")
 		});
 		this.toDispose.push(this.inputBox);
 
@@ -91,6 +92,7 @@ export class BreakpointWidget extends ZoneWidget {
 			const isEscape = e.equals(CommonKeybindings.ESCAPE);
 			const isEnter = e.equals(CommonKeybindings.ENTER);
 			if (isEscape || isEnter) {
+				e.stopPropagation();
 				wrapUp(isEnter);
 			}
 		}));
@@ -101,6 +103,7 @@ export class BreakpointWidget extends ZoneWidget {
 		this.breakpointWidgetVisible.reset();
 		BreakpointWidget.INSTANCE = undefined;
 		lifecycle.disposeAll(this.toDispose);
+		setTimeout(() => this.editor.focus(), 0);
 	}
 }
 

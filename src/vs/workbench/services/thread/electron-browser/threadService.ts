@@ -5,6 +5,7 @@
 
 'use strict';
 
+import {Action} from 'vs/base/common/actions';
 import {TPromise} from 'vs/base/common/winjs.base';
 import nls = require('vs/nls');
 import {MainThreadService as CommonMainThreadService} from 'vs/platform/thread/common/mainThreadService';
@@ -114,18 +115,10 @@ class PluginHostProcessManager {
 			env: objects.mixin(objects.clone(process.env), { AMD_ENTRYPOINT: 'vs/workbench/node/pluginHostProcess', PIPE_LOGGING: 'true', VERBOSE_LOGGING: true })
 		};
 
-		// Make sure the nls configuration travels to the plugin host.
-		if (globalRequire && typeof globalRequire.getConfig === 'function') {
-			let nlsConfig = globalRequire.getConfig()['vs/nls'];
-			if (nlsConfig) {
-				opts.env['VSCODE_NLS_CONFIG'] = JSON.stringify(nlsConfig);
-			}
-		}
-
 		// Help in case we fail to start it
 		if (isDev) {
 			this.initializeTimer = setTimeout(() => {
-				const msg = config.env.debugBrkPluginHost ? nls.localize('pluginHostProcess.startupFailDebug', "Plugin host did not start in 10 seconds, it might be stopped on the first line and needs a debugger to continue.") : nls.localize('pluginHostProcess.startupFail', "Plugin host did not start in 10 seconds, that might be a problem.");
+				const msg = config.env.debugBrkPluginHost ? nls.localize('pluginHostProcess.startupFailDebug', "Extension host did not start in 10 seconds, it might be stopped on the first line and needs a debugger to continue.") : nls.localize('pluginHostProcess.startupFail', "Extension host did not start in 10 seconds, that might be a problem.");
 
 				this.messageService.show(Severity.Warning, msg);
 			}, 10000);
@@ -162,7 +155,7 @@ class PluginHostProcessManager {
 							window.clearTimeout(this.initializeTimer);
 						}
 
-						let initPayload = marshalling.serialize({
+						let initPayload = marshalling.stringify({
 							parentPid: process.pid,
 							contextService: {
 								workspace: this.contextService.getWorkspace(),
@@ -184,7 +177,7 @@ class PluginHostProcessManager {
 
 					// Support logging from plugin host
 					else if (msg && (<ILogEntry>msg).type === '__$console') {
-						let logEntry:ILogEntry = msg;
+						let logEntry: ILogEntry = msg;
 
 						let args = [];
 						try {
@@ -241,7 +234,7 @@ class PluginHostProcessManager {
 
 					this.lastPluginHostError = errorMessage;
 
-					this.messageService.show(Severity.Error, nls.localize('pluginHostProcess.error', "Error from the plugin host: {0}", errorMessage));
+					this.messageService.show(Severity.Error, nls.localize('pluginHostProcess.error', "Error from the extension host: {0}", errorMessage));
 				});
 
 				this.pluginHostProcessHandle.on('exit', (code: any, signal: any) => {
@@ -251,7 +244,10 @@ class PluginHostProcessManager {
 
 						// Unexpected termination
 						if (!this.isPluginDevelopmentHost) {
-							this.messageService.show(Severity.Error, nls.localize('pluginHostProcess.crash', "Plugin host terminated unexpectedly. Please restart VSCode to recover."));
+							this.messageService.show(Severity.Error, {
+								message: nls.localize('pluginHostProcess.crash', "Extension host terminated unexpectedly. Please reload the window to recover."),
+								actions: [new Action('reloadWindow', nls.localize('reloadWindow', "Reload Window"), null, true, () => { this.windowService.getWindow().reload(); return TPromise.as(null); })]
+							});
 							console.error('Plugin host terminated unexpectedly. Code: ', code, ' Signal: ', signal);
 						}
 

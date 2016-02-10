@@ -26,7 +26,7 @@ class ToggleWordWrapAction extends EditorAction {
 
 		let wrappingInfo = this.editor.getConfiguration().wrappingInfo;
 
-		if (wrappingInfo.isViewportWrapping == false) {
+		if (!wrappingInfo.isViewportWrapping) {
 			wrappingInfo.wrappingColumn = 0;
 		} else {
 			wrappingInfo.wrappingColumn = DefaultConfig.editor.wrappingColumn;
@@ -38,7 +38,7 @@ class ToggleWordWrapAction extends EditorAction {
 }
 
 // register actions
-CommonEditorRegistry.registerEditorAction(new EditorActionDescriptor(ToggleWordWrapAction, ToggleWordWrapAction.ID, nls.localize('toggle.wordwrap', "ww: Toggle Word Wrap"), {
+CommonEditorRegistry.registerEditorAction(new EditorActionDescriptor(ToggleWordWrapAction, ToggleWordWrapAction.ID, nls.localize('toggle.wordwrap', "View: Toggle Word Wrap"), {
 	context: ContextKey.EditorTextFocus,
 	primary: KeyMod.Alt | KeyCode.KEY_Z,
 	mac: { primary: KeyMod.Alt |  KeyCode.KEY_Z },

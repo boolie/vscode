@@ -39,15 +39,15 @@
 	margin-right: 0.5em;
 	cursor: pointer;
 	width: 16px;
-	height: 16px;
+	height: 13px;
 }
 
 .monaco-workbench.vs-dark .search-viewlet .query-details .more {
-	background: url('ellipsis-inverse.svg') center center no-repeat;
+	background: url('ellipsis-inverse.svg') top center no-repeat;
 }
 
 .monaco-workbench.vs .search-viewlet .query-details .more {
-	background: url('ellipsis.svg') center center no-repeat;
+	background: url('ellipsis.svg') top center no-repeat;
 }
 
 .search-viewlet .query-details .file-types {
@@ -169,6 +169,11 @@
 
 .search-viewlet .monaco-count-badge {
 	margin-right: 12px;
+}
+
+.search-viewlet > .results > .monaco-tree .monaco-tree-row:hover .content .monaco-count-badge,
+.search-viewlet > .results > .monaco-tree.focused .monaco-tree-row.focused .content .monaco-count-badge {
+	display: none;
 }
 
 .vs .search-viewlet input.disabled,

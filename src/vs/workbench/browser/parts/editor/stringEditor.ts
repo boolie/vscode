@@ -9,8 +9,6 @@ import nls = require('vs/nls');
 import types = require('vs/base/common/types');
 import {ICodeEditor} from 'vs/editor/browser/editorBrowser';
 import {IEditorOptions, IEditorViewState} from 'vs/editor/common/editorCommon';
-import {DefaultConfig} from 'vs/editor/common/config/defaultConfig';
-import {EditorConfiguration} from 'vs/editor/common/config/commonEditorConfig';
 import {TextEditorOptions, EditorModel, EditorInput, EditorOptions} from 'vs/workbench/common/editor';
 import {BaseTextEditorModel} from 'vs/workbench/common/editor/textEditorModel';
 import {UntitledEditorInput} from 'vs/workbench/common/editor/untitledEditorInput';
@@ -137,11 +135,15 @@ export class StringEditor extends BaseTextEditor {
 
 		options.readOnly = isReadonly;
 
+		let ariaLabel: string;
+		let inputName = input && input.getName();
 		if (isReadonly) {
-			options.ariaLabel = nls.localize('readonlyEditorAriaLabel', "Readonly text editor");
+			ariaLabel = inputName ? nls.localize('readonlyEditorWithInputAriaLabel', "{0}. Readonly text editor.", inputName) : nls.localize('readonlyEditorAriaLabel', "Readonly text editor.");
 		} else {
-			options.ariaLabel = nls.localize('untitledFileEditorAriaLabel', "Untitled file text editor");
+			ariaLabel = inputName ? nls.localize('untitledFileEditorWithInputAriaLabel', "{0}. Untitled file text editor.", inputName) : nls.localize('untitledFileEditorAriaLabel', "Untitled file text editor.");
 		}
+
+		options.ariaLabel = ariaLabel;
 
 		return options;
 	}

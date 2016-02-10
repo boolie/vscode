@@ -41,6 +41,7 @@ export default class RenameInputField implements EditorBrowser.IContentWidget, l
 		if (!this._domNode) {
 			this._inputField = document.createElement('input');
 			this._inputField.className = 'rename-input';
+			this._inputField.type = 'text';
 			this._domNode = document.createElement('div');
 			this._domNode.style.height = `${this._editor.getConfiguration().lineHeight}px`;
 			this._domNode.className = 'monaco-editor rename-box';
@@ -105,7 +106,7 @@ export default class RenameInputField implements EditorBrowser.IContentWidget, l
 				this._currentAcceptInput = null;
 				this._currentCancelInput = null;
 				c(this._inputField.value);
-			}
+			};
 
 			let onCursorChanged = () => {
 				if (!Range.containsPosition(where, this._editor.getPosition())) {

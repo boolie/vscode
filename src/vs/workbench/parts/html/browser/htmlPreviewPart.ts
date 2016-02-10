@@ -17,11 +17,11 @@ import {Position} from 'vs/platform/editor/common/editor';
 import {ITelemetryService} from 'vs/platform/telemetry/common/telemetry';
 import {IStorageService, StorageEventType, StorageScope} from 'vs/platform/storage/common/storage';
 import {IWorkbenchEditorService} from 'vs/workbench/services/editor/common/editorService';
-import {ResourceEditorModel} from 'vs/workbench/common/editor/resourceEditorModel';
+import {BaseTextEditorModel} from 'vs/workbench/common/editor/textEditorModel';
 import {Preferences} from 'vs/workbench/common/constants';
 import {HtmlInput} from 'vs/workbench/parts/html/common/htmlInput';
 import {isLightTheme} from 'vs/platform/theme/common/themes';
-import {DEFAULT_THEME_ID} from 'vs/workbench/services/themes/node/themeService';
+import {DEFAULT_THEME_ID} from 'vs/workbench/services/themes/common/themeService';
 /**
  * An implementation of editor for showing HTML content in an IFrame by leveraging the IFrameEditorInput.
  */
@@ -72,6 +72,7 @@ export class HtmlPreviewPart extends BaseEditor {
 		// Container for IFrame
 		const iFrameContainerElement = document.createElement('div');
 		iFrameContainerElement.className = 'iframe-container monaco-editor-background'; // Inherit the background color from selected theme
+		iFrameContainerElement.tabIndex = 0; // enable focus support from the editor part (do not remove)
 		iFrameContainerElement.appendChild(this._iFrameElement);
 
 		parent.getHTMLElement().appendChild(iFrameContainerElement);
@@ -113,7 +114,7 @@ export class HtmlPreviewPart extends BaseEditor {
 			} else {
 				this._modelChangeUnbind = cAll(this._modelChangeUnbind);
 			}
-		})
+		});
 	}
 
 	public changePosition(position: Position): void {
@@ -137,9 +138,9 @@ export class HtmlPreviewPart extends BaseEditor {
 			return TPromise.wrapError<void>('Invalid input');
 		}
 
-		return this._editorService.resolveEditorModel(input).then(model => {
-			if (model instanceof ResourceEditorModel) {
-				this._model = model.textEditorModel
+		return this._editorService.resolveEditorModel({ resource: (<HtmlInput>input).getResource() }).then(model => {
+			if (model instanceof BaseTextEditorModel) {
+				this._model = model.textEditorModel;
 			}
 
 			if (!this._model) {
@@ -183,7 +184,7 @@ export class HtmlPreviewPart extends BaseEditor {
 		if (newDocument.head.hasChildNodes()) {
 			newDocument.head.insertBefore(styleElement, newDocument.head.firstChild);
 		} else {
-			newDocument.head.appendChild(styleElement)
+			newDocument.head.appendChild(styleElement);
 		}
 
 		if (newDocument.head.innerHTML !== iFrameDocument.head.innerHTML) {
@@ -296,7 +297,7 @@ namespace Integration {
 		'::-webkit-scrollbar-thumb:active {',
 		'	background-color: rgba(85, 85, 85, 0.8);',
 		'}'
-	].join('\n')
+	].join('\n');
 
 	export function defaultStyle(element: HTMLElement, themeId: string): HTMLStyleElement {
 		const styles = window.getComputedStyle(element);
